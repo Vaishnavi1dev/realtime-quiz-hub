@@ -1,0 +1,153 @@
+/* Styling with DarkVeil background */
+body {
+  background: transparent;
+  color: #000000;
+}
+
+/* Headings */
+h1, h2, h3 {
+  color: #000000;
+  font-weight: bold;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+}
+
+h4, h5, h6 {
+  color: #000000;
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.5);
+}
+
+/* Paragraph and general text */
+p {
+  color: #000000;
+  text-shadow: 0 1px 5px rgba(255, 255, 255, 0.3);
+}
+
+/* Labels */
+label {
+  color: #000000;
+  font-weight: 500;
+  text-shadow: 0 1px 5px rgba(255, 255, 255, 0.3);
+}
+
+/* Card titles */
+[class*="CardTitle"] {
+  color: #000000;
+  font-weight: bold;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Card descriptions */
+[class*="CardDescription"] {
+  color: rgba(0, 0, 0, 0.8) !important;
+  text-shadow: 0 1px 5px rgba(255, 255, 255, 0.3);
+}
+
+/* Hologram card text */
+.hologram-card h1,
+.hologram-card h2,
+.hologram-card h3 {
+  color: #000000;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+}
+
+.hologram-card h4,
+.hologram-card h5,
+.hologram-card h6 {
+  color: #000000;
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.5);
+}
+
+.hologram-card p {
+  color: #000000;
+  text-shadow: 0 1px 5px rgba(255, 255, 255, 0.3);
+}
+
+.hologram-card label {
+  color: #000000;
+  text-shadow: 0 1px 5px rgba(255, 255, 255, 0.3);
+}
+
+/* Input styling */
+input, textarea, select {
+  color: #000000 !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(0, 0, 0, 0.3) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: rgba(99, 102, 241, 0.6) !important;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Tab styling */
+[role="tab"] {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+[role="tab"][data-state="active"] {
+  color: #000000;
+}
+
+/* Badge styling */
+[class*="badge"] {
+  color: #000000;
+}
+
+/* Link colors */
+a {
+  color: #1a1a1a;
+}
+
+a:hover {
+  color: #000000;
+}
+
+/* Muted text */
+.text-muted-foreground {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Ensure all text is visible */
+div, span {
+  color: #000000;
+}
+
+/* Button text */
+.hologram-button {
+  color: #000000 !important;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.5);
+}
+
+/* Icon colors */
+svg {
+  color: #000000;
+}
+
+/* Table and list text */
+table, ul, ol, li {
+  color: #000000;
+}
+
+/* Code and pre blocks */
+code, pre {
+  color: #1a1a1a;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Strong and emphasis */
+strong, b {
+  color: #000000;
+  font-weight: 700;
+}
+
+em, i {
+  color: #000000;
+}
