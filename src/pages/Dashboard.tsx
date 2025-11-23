@@ -15,7 +15,13 @@ const Dashboard = () => {
     if (!userData) {
       navigate("/");
     } else {
-      setUser(JSON.parse(userData));
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+      
+      // Redirect teachers to their dashboard
+      if (parsedUser.userType === "teacher") {
+        navigate("/teacher-dashboard");
+      }
     }
   }, [navigate]);
 
