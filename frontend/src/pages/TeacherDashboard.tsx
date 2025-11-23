@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Plus, LogOut, Trophy, BookOpen, Users, Play, Trash2, BarChart3, TrendingUp, Award } from "lucide-react";
+import { Plus, LogOut, Trophy, BookOpen, Users, Play, Trash2, BarChart3, TrendingUp, Award, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 const TeacherDashboard = () => {
@@ -181,6 +181,13 @@ const TeacherDashboard = () => {
               Create Quiz
             </Button>
             <Button
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+              onClick={() => navigate("/ai-quiz-generation")}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              AI Generate Quiz
+            </Button>
+            <Button
               className="w-full"
               variant="outline"
               onClick={() => navigate("/students")}
@@ -341,7 +348,7 @@ const TeacherDashboard = () => {
                       <div key={index} className="p-3 bg-white/10 rounded-lg">
                         <div className="flex justify-between items-start mb-1">
                           <p className="font-semibold text-white">{activity.student}</p>
-                          <Badge variant="outline">{activity.score}</Badge>
+                          <Badge variant="secondary" className="bg-white text-gray-800">{activity.score}</Badge>
                         </div>
                         <p className="text-sm text-white/70">{activity.quiz}</p>
                         <p className="text-xs text-white/50 mt-1">{activity.time}</p>
@@ -390,13 +397,15 @@ const TeacherDashboard = () => {
                   <CardHeader>
                     <CardTitle className="text-xl mb-2 text-white">{quiz.title}</CardTitle>
                     <div className="flex gap-2 flex-wrap">
-                      <Badge variant="outline" className="capitalize">
-                        {quiz.difficulty}
+                      <Badge className="bg-white text-gray-800 border-0">
+                        {quiz.difficulty === 'easy' ? 'Easy' : 
+                         quiz.difficulty === 'medium' ? 'Medium' : 
+                         quiz.difficulty === 'hard' ? 'Hard' : quiz.difficulty}
                       </Badge>
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="bg-white text-gray-800">
                         {quiz.questions.length} Questions
                       </Badge>
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="bg-white text-gray-800">
                         {Math.floor(quiz.timeLimit / 60)}min
                       </Badge>
                     </div>

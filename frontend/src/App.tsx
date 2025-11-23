@@ -12,8 +12,10 @@ import Results from "./pages/Results";
 import Leaderboard from "./pages/Leaderboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherQuizCreation from "./pages/TeacherQuizCreation";
+import AIQuizGeneration from "./pages/AIQuizGeneration";
 import TeacherConductQuiz from "./pages/TeacherConductQuiz";
 import StudentList from "./pages/StudentList";
+import LearningResources from "./pages/LearningResources";
 import NotFound from "./pages/NotFound";
 import "./styles/hologram.css";
 import "./styles/theme.css";
@@ -49,8 +51,10 @@ const App = () => (
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
           <Route path="/teacher-create-quiz" element={<TeacherQuizCreation />} />
+          <Route path="/ai-quiz-generation" element={<AIQuizGeneration />} />
           <Route path="/teacher-conduct-quiz" element={<TeacherConductQuiz />} />
           <Route path="/students" element={<StudentList />} />
+          <Route path="/learning-resources" element={<LearningResources />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

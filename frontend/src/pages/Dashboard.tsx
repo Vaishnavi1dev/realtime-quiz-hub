@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Target, Trophy, LogOut, Zap, Brain, Users as UsersIcon } from "lucide-react";
+import { Clock, Target, Trophy, LogOut, Zap, Brain, Users as UsersIcon, BookOpen } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -120,6 +120,27 @@ const Dashboard = () => {
           </CardHeader>
         </Card>
 
+        {/* Learning Resources Card */}
+        <Card 
+          className="glass-card-light cursor-pointer hover:shadow-lg transition-all" 
+          onClick={() => navigate("/learning-resources")}
+          style={{
+            background: 'rgba(255, 255, 255, 0.08)',
+            backdropFilter: 'blur(40px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+          }}
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg text-white">
+              <BookOpen className="w-5 h-5" />
+              AI Learning Resources
+            </CardTitle>
+            <CardDescription className="text-sm text-white/80">
+              Personalized study materials
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
         {/* Logout Button */}
         <Button variant="outline" onClick={handleLogout} className="w-full">
           <LogOut className="w-4 h-4 mr-2" />
@@ -229,13 +250,15 @@ const Dashboard = () => {
                       <CardTitle className="text-xl text-white">{quiz.title}</CardTitle>
                       <CardDescription className="text-white/80">
                         <div className="flex items-center gap-2 flex-wrap mt-2">
-                          <Badge variant="outline" className="capitalize">
-                            {quiz.difficulty}
+                          <Badge className="bg-white text-gray-800 border-0">
+                            {quiz.difficulty === 'easy' ? 'Easy' : 
+                             quiz.difficulty === 'medium' ? 'Medium' : 
+                             quiz.difficulty === 'hard' ? 'Hard' : quiz.difficulty}
                           </Badge>
-                          <Badge variant="secondary">
+                          <Badge className="bg-white text-gray-800 border-0">
                             {quiz.questions.length} Questions
                           </Badge>
-                          <Badge variant="secondary">
+                          <Badge className="bg-white text-gray-800 border-0">
                             {Math.floor(quiz.timeLimit / 60)}min
                           </Badge>
                         </div>
