@@ -1,73 +1,182 @@
-# Welcome to your Lovable project
+# QuizMaster - Real-time Quiz Platform
 
-## Project info
+A modern, interactive quiz platform built with React, TypeScript, and MongoDB that enables teachers to create quizzes and students to participate in real-time competitions.
 
-**URL**: https://lovable.dev/projects/4f676c32-9ee3-46a4-9d9c-2e1009dfc17d
+## Features
 
-## How can I edit this code?
+### For Teachers
+- Create custom quizzes with multiple-choice questions
+- Set difficulty levels (Easy, Medium, Hard)
+- Configure time limits
+- View all created quizzes
+- Delete quizzes
+- Track student performance
 
-There are several ways of editing your application.
+### For Students
+- View available quizzes
+- Attempt quizzes with timer
+- See instant results
+- Track personal progress
+- Compete on leaderboards
 
-**Use Lovable**
+### Technical Features
+- Real-time updates with Socket.IO
+- MongoDB database integration
+- JWT authentication
+- Role-based access control
+- Responsive design with Tailwind CSS
+- Beautiful hologram-themed UI
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/4f676c32-9ee3-46a4-9d9c-2e1009dfc17d) and start prompting.
+## Tech Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+### Frontend
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS
+- Shadcn/ui components
+- React Router
+- Socket.IO client
 
-**Use your preferred IDE**
+### Backend
+- Node.js
+- Express
+- MongoDB with Mongoose
+- JWT authentication
+- Socket.IO
+- bcryptjs for password hashing
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+- MongoDB Atlas account (or local MongoDB)
 
-Follow these steps:
+### Installation
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. Clone the repository:
+```bash
+git clone https://github.com/Vanusshka/realtime-quiz-hub.git
+cd realtime-quiz-hub
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. Install backend dependencies:
+```bash
+cd backend
+npm install
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3. Install frontend dependencies:
+```bash
+cd ../frontend
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+4. Configure environment variables:
+
+Create `backend/.env` file:
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_secret_key
+CLIENT_URL=http://localhost:8081
+NODE_ENV=development
+```
+
+### Running the Application
+
+1. Start the backend server:
+```bash
+cd backend
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+2. Start the frontend development server:
+```bash
+cd frontend
+npm run dev
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. Open your browser and navigate to:
+- Frontend: http://localhost:8081
+- Backend API: http://localhost:5000
 
-**Use GitHub Codespaces**
+## Project Structure
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+realtime-quiz/
+├── backend/
+│   ├── config/          # Database configuration
+│   ├── middleware/      # Authentication middleware
+│   ├── models/          # MongoDB models
+│   ├── routes/          # API routes
+│   └── server.js        # Express server
+├── frontend/
+│   ├── public/          # Static assets
+│   ├── src/
+│   │   ├── components/  # React components
+│   │   ├── contexts/    # React contexts
+│   │   ├── pages/       # Page components
+│   │   ├── styles/      # CSS styles
+│   │   └── config/      # API configuration
+│   └── index.html
+└── README.md
+```
 
-## What technologies are used for this project?
+## API Endpoints
 
-This project is built with:
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Quizzes
+- `GET /api/quiz` - Get all quizzes
+- `GET /api/quiz/:id` - Get quiz by ID
+- `POST /api/quiz` - Create quiz (teacher only)
+- `PUT /api/quiz/:id` - Update quiz (teacher only)
+- `DELETE /api/quiz/:id` - Delete quiz (teacher only)
+- `POST /api/quiz/:id/submit` - Submit quiz answers (student only)
+- `GET /api/quiz/:id/results` - Get quiz results
 
-## How can I deploy this project?
+### Users
+- `GET /api/users/me` - Get current user
+- `GET /api/users/leaderboard` - Get leaderboard
+- `GET /api/users/results` - Get user's results
 
-Simply open [Lovable](https://lovable.dev/projects/4f676c32-9ee3-46a4-9d9c-2e1009dfc17d) and click on Share -> Publish.
+## Database Schema
 
-## Can I connect a custom domain to my Lovable project?
+### User
+- name, email, password (hashed)
+- userType (student/teacher)
+- rollNo (for students)
 
-Yes, you can!
+### Quiz
+- title, description, difficulty
+- timeLimit, questions[]
+- teacherId, isActive
+- createdAt
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Result
+- quizId, studentId
+- answers[], score
+- totalQuestions, correctAnswers
+- timeTaken, completedAt
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is open source and available under the MIT License.
+
+## Support
+
+For support, please open an issue in the GitHub repository.
+
+## Acknowledgments
+
+- Built with modern web technologies
+- Inspired by interactive learning platforms
+- Designed for educational institutions
