@@ -6,9 +6,11 @@ A full-stack real-time quiz application built with React, Node.js, Express, Mong
 
 ### For Teachers
 - 📝 Create custom quizzes with multiple-choice questions
+- 🤖 **AI-Powered Quiz Generation** with Google Gemini
 - 🎚️ Set difficulty levels (Easy, Medium, Hard)
 - ⏱️ Configure time limits for quizzes
-- 📊 View all created quizzes
+- 📊 View all created quizzes with correct answers highlighted
+- 💡 View AI-generated explanations for each question
 - 🗑️ Delete quizzes
 - 👥 Automatic visibility to all students
 
@@ -17,7 +19,9 @@ A full-stack real-time quiz application built with React, Node.js, Express, Mong
 - 🔍 View quiz details (difficulty, questions, time limit)
 - ✍️ Attempt quizzes with countdown timer
 - 📈 Automatic score calculation
-- 📊 View detailed results and breakdown
+- 📊 View detailed results with question-by-question analysis
+- 💡 **Get AI explanations** for incorrect answers
+- 🎯 Learn from mistakes with personalized feedback
 
 ### System Features
 - 🔐 JWT-based authentication
@@ -47,6 +51,7 @@ A full-stack real-time quiz application built with React, Node.js, Express, Mong
 - **Password Hashing:** bcryptjs
 - **Real-time:** Socket.IO
 - **Validation:** express-validator
+- **AI Integration:** Google Gemini API
 
 ## 📋 Prerequisites
 
@@ -228,11 +233,16 @@ realtime-quiz/
 
 ### Backend (.env)
 ```env
-MONGODB_URI=mongodb://localhost:27018/quizmaster
-JWT_SECRET=your_super_secret_jwt_key_here
 PORT=5000
 NODE_ENV=development
+MONGODB_URI=mongodb://localhost:27018/quizmaster
+JWT_SECRET=your_super_secret_jwt_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
+
+**Important:** 
+- Generate a secure JWT_SECRET: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
+- Get a free Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
 
 ## 📦 Available Scripts
 
@@ -292,13 +302,14 @@ Student Dashboard → GET /api/quiz → Display Quizzes → Start Quiz
 - Verify token is stored in localStorage as `authToken`
 - Check token expiration (default: 24 hours)
 
-## 📚 Documentation
+## 🤖 AI Features
 
-Additional documentation available:
-- `backend/QUICK_START.md` - Backend setup guide
-- `backend/MONGODB_SETUP.md` - MongoDB configuration
-- `TESTING_GUIDE.md` - Comprehensive testing scenarios
-- `IMPLEMENTATION_SUMMARY.md` - Feature implementation details
+This project uses **Google Gemini AI** for:
+- **Automated Quiz Generation**: Generate quizzes on any topic with customizable difficulty
+- **Smart Explanations**: Get detailed explanations for correct and incorrect answers
+- **Personalized Learning**: AI-powered feedback to help students understand concepts
+
+To use AI features, you need a free Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
 
 ## 🤝 Contributing
 
