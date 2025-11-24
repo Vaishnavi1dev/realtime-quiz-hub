@@ -30,11 +30,28 @@ cp .env.example .env
 ```
 
 3. Update the `.env` file with your configuration:
+
+### Generate a JWT Secret:
+```bash
+# Run this command to generate a secure random secret
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+Copy the output and use it as your `JWT_SECRET` in `.env`
+
+### Get a Gemini API Key (Required for AI quiz generation):
+- Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
+- Sign in with your Google account
+- Click "Create API Key"
+- Copy the API key and paste it in your `.env` file as `GEMINI_API_KEY`
+- The API has a free tier, so you can start using it immediately!
+
+### Your `.env` should look like:
 ```
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/quizmaster
-JWT_SECRET=your_secret_key_here
+MONGODB_URI=mongodb://localhost:27018/quizmaster
+JWT_SECRET=<your_generated_secret_from_above>
 NODE_ENV=development
+GEMINI_API_KEY=<your_gemini_api_key>
 ```
 
 ## Running the Server
