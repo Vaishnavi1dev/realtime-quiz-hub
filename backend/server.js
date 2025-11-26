@@ -4,6 +4,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
+const { connectRedis } = require('./config/redis');
 
 // Load environment variables
 dotenv.config();
@@ -22,6 +23,9 @@ const io = socketIo(server, {
 
 // Connect to MongoDB
 connectDB();
+
+// Connect to Redis (optional - for caching)
+connectRedis();
 
 // Middleware
 app.use(cors());

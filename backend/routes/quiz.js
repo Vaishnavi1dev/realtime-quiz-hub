@@ -3,6 +3,7 @@ const router = express.Router();
 const Quiz = require('../models/Quiz');
 const Result = require('../models/Result');
 const auth = require('../middleware/auth');
+const { cacheMiddleware, clearCache } = require('../middleware/cache');
 
 // @route   POST /api/quiz
 // @desc    Create a new quiz
@@ -25,6 +26,10 @@ router.post('/', auth, async (req, res) => {
     });
 
     await quiz.save();
+    
+    // Clear quiz cache
+    clearCache('cache:/api/quiz*');
+    
     res.status(201).json(quiz);
   } catch (error) {
     console.error(error.message);
@@ -35,7 +40,7 @@ router.post('/', auth, async (req, res) => {
 // @route   GET /api/quiz
 // @desc    Get all quizzes
 // @access  Private
-router.get('/', auth, async (req, res) => {
+router.get('/', auth, cacheMiddleware(300), async (req, res) => { // Cache for 5 minutes
   try {
     let quizzes;
     if (req.user.userType === 'teacher') {
@@ -53,7 +58,7 @@ router.get('/', auth, async (req, res) => {
 // @route   GET /api/quiz/:id
 // @desc    Get quiz by ID
 // @access  Private
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', auth, cacheMiddleware(600), async (req, res) => { // Cache for 10 minutes
   try {
     const quiz = await Quiz.findById(req.params.id);
     if (!quiz) {
