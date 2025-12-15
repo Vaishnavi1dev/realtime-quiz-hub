@@ -48,18 +48,17 @@ const AIQuizGeneration = () => {
 
       if (response.ok) {
         const data = await response.json();
-        toast.success("Quiz generated successfully!");
+        toast.success("Quiz generated and saved successfully!");
         
-        // Store the generated quiz in localStorage for demo mode
-        localStorage.setItem('generatedQuiz', JSON.stringify(data.quiz));
+        // Set quiz settings for the real database-saved quiz
+        localStorage.setItem('quizSettings', JSON.stringify({
+          quizId: data.quiz._id,
+          timeLimit: data.quiz.timeLimit,
+          isAIGenerated: true
+        }));
         
-        // Navigate to quiz page to show the generated quiz
-        navigate(`/quiz/${data.quiz._id}`, { 
-          state: { 
-            quiz: data.quiz,
-            isDemo: true 
-          } 
-        });
+        // Navigate to quiz page to load from database
+        navigate('/quiz');
       } else {
         const error = await response.json();
         toast.error(error.message || "Failed to generate quiz");

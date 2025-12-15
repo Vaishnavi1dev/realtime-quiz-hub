@@ -28,10 +28,11 @@ class GeminiService {
     }
     try {
       const models = await this.genAI.listModels();
-      console.log('Available models:', models);
-      return models;
+      console.log('📋 Available models:', models.map(m => m.name));
+      return models.map(m => ({ name: m.name, displayName: m.displayName }));
     } catch (error) {
       console.error('Error listing models:', error);
+      throw error;
     }
   }
 

@@ -10,48 +10,51 @@ const connectDB = async () => {
                      process.env.MONGODB_URL; // Railway sometimes uses this
     
     if (!mongoUri) {
-      console.warn('⚠️  MongoDB URI not found in environment variables.');
-      console.warn('⚠️  Server will run without database (some features disabled)');
-      console.warn('💡 To add MongoDB: Railway dashboard → New → Database → Add MongoDB');
-      return; // Don't crash, just continue without DB
+      console.error('❌ CRITICAL: MongoDB URI not found in environment variables.');
+      console.error('❌ This is a real website - database is REQUIRED');
+      console.error('💡 Go to Railway dashboard → Variables and check MongoDB connection');
+      throw new Error('Database is required for production website');
     }
 
-    console.log('🔄 Connecting to Railway MongoDB...');
-    console.log('📍 URI:', mongoUri.replace(/\/\/.*@/, '//***:***@')); // Hide credentials in logs
+    console.log('🔄 Connecting to Railway MongoDB (REQUIRED)...');
+    console.log('📍 URI pattern:', mongoUri.substring(0, 20) + '...');
 
     const conn = await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 10000, // 10 second timeout
-      socketTimeoutMS: 30000, // 30 second socket timeout
+      serverSelectionTimeoutMS: 15000, // 15 second timeout
+      socketTimeoutMS: 45000, // 45 second socket timeout
       bufferMaxEntries: 0, // Disable mongoose buffering
       bufferCommands: false, // Disable mongoose buffering
-      maxPoolSize: 5, // Reduce connection pool size
-      minPoolSize: 1, // Maintain at least 1 socket connection
+      maxPoolSize: 10, // Connection pool size
+      minPoolSize: 2, // Minimum connections
+      retryWrites: true,
+      w: 'majority'
     });
 
     console.log(`✅ Railway MongoDB Connected: ${conn.connection.host}`);
     console.log(`📊 Database: ${conn.connection.name}`);
+    console.log(`🔗 Connection state: ${conn.connection.readyState}`);
     
-    // Test the connection
+    // Test the connection with a real operation
     await mongoose.connection.db.admin().ping();
-    console.log('✅ MongoDB ping successful');
+    console.log('✅ MongoDB ping successful - database is ready');
+    
+    // Test collections access
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    console.log(`📋 Available collections: ${collections.map(c => c.name).join(', ')}`);
     
   } catch (error) {
-    console.error(`❌ MongoDB Connection Error: ${error.message}`);
+    console.error(`❌ CRITICAL DATABASE ERROR: ${error.message}`);
     
     if (error.message.includes('Authentication failed')) {
-      console.error('❌ Database authentication failed.');
-      console.error('💡 Try removing and re-adding the MongoDB service in Railway');
+      console.error('❌ Database authentication failed - check credentials');
     } else if (error.message.includes('ENOTFOUND') || error.message.includes('ECONNREFUSED')) {
-      console.error('❌ Cannot reach Railway MongoDB service.');
-      console.error('💡 Check if MongoDB service is running in Railway dashboard');
+      console.error('❌ Cannot reach MongoDB service - check Railway dashboard');
     } else if (error.message.includes('timeout')) {
-      console.error('❌ Connection timeout to Railway MongoDB.');
-      console.error('💡 Railway MongoDB might be starting up, try again in a moment');
+      console.error('❌ Database connection timeout - service may be down');
     }
     
-    console.warn('⚠️  Server will continue without database connection');
-    console.warn('⚠️  Some features may not work properly');
-    // Don't exit - let server run without DB for now
+    console.error('❌ STOPPING SERVER - Real websites need databases');
+    process.exit(1); // Exit if database fails - this is a real website
   }
 };
 

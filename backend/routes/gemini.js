@@ -70,7 +70,7 @@ router.get('/test-models', auth, async (req, res) => {
   }
 });
 
-// Generate quiz using Gemini AI (demo version - no auth required)
+// Generate quiz using Gemini AI (public version - saves to database like a real website)
 router.post('/generate-quiz-demo', async (req, res) => {
   try {
     const { topic, difficulty, questionCount } = req.body;
@@ -84,16 +84,11 @@ router.post('/generate-quiz-demo', async (req, res) => {
       console.error('❌ Gemini service is not enabled');
       return res.status(503).json({ 
         message: 'AI service is not available', 
-        error: 'GEMINI_API_KEY is not configured',
-        debug: {
-          hasApiKey: !!process.env.GEMINI_API_KEY,
-          apiKeyLength: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0
-        }
+        error: 'GEMINI_API_KEY is not configured'
       });
     }
 
-    console.log(`🤖 Generating demo quiz: ${topic} (${difficulty}, ${questionCount} questions)`);
-    console.log('🔑 Gemini API Key available:', !!process.env.GEMINI_API_KEY);
+    console.log(`🤖 Generating AI quiz: ${topic} (${difficulty}, ${questionCount} questions)`);
 
     // Generate quiz using Gemini
     const generatedQuiz = await geminiService.generateQuiz(topic, difficulty, questionCount);
@@ -102,25 +97,31 @@ router.post('/generate-quiz-demo', async (req, res) => {
       throw new Error('Invalid quiz data generated');
     }
 
-    console.log(`✅ Demo quiz generated successfully: ${generatedQuiz.title}`);
+    console.log(`✅ AI quiz generated successfully: ${generatedQuiz.title}`);
 
-    // Return quiz without saving to database (demo mode)
+    // Save to database like a real website (no demo mode)
+    const quiz = new Quiz({
+      title: generatedQuiz.title,
+      difficulty: difficulty.toLowerCase(),
+      timeLimit: questionCount * 60, // 1 minute per question
+      questions: generatedQuiz.questions,
+      teacherId: null, // Public AI-generated quiz
+      isAIGenerated: true,
+      topic: topic,
+      isActive: true,
+      createdAt: new Date()
+    });
+
+    await quiz.save();
+    console.log(`💾 Quiz saved to database with ID: ${quiz._id}`);
+
     res.json({
-      message: 'Quiz generated successfully (demo mode)',
-      quiz: {
-        _id: 'demo-' + Date.now(),
-        title: generatedQuiz.title,
-        difficulty: difficulty.toLowerCase(),
-        timeLimit: questionCount * 60,
-        questions: generatedQuiz.questions,
-        isAIGenerated: true,
-        topic: topic,
-        isDemo: true
-      }
+      message: 'Quiz generated and saved successfully',
+      quiz: quiz
     });
 
   } catch (error) {
-    console.error('❌ Generate demo quiz error:', error);
+    console.error('❌ Generate AI quiz error:', error);
     
     // Provide specific error messages
     let errorMessage = 'Failed to generate quiz';
@@ -142,8 +143,7 @@ router.post('/generate-quiz-demo', async (req, res) => {
 
     res.status(statusCode).json({ 
       message: errorMessage, 
-      error: error.message,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      error: error.message
     });
   }
 });

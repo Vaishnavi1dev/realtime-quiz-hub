@@ -55,6 +55,28 @@ router.get('/', auth, cacheMiddleware(300), async (req, res) => { // Cache for 5
   }
 });
 
+// @route   GET /api/quiz/:id/public
+// @desc    Get public quiz by ID (no auth required for AI-generated quizzes)
+// @access  Public
+router.get('/:id/public', async (req, res) => {
+  try {
+    const quiz = await Quiz.findById(req.params.id);
+    if (!quiz) {
+      return res.status(404).json({ message: 'Quiz not found' });
+    }
+
+    // Only allow public access to AI-generated quizzes
+    if (!quiz.isAIGenerated) {
+      return res.status(403).json({ message: 'This quiz requires authentication' });
+    }
+
+    res.json(quiz);
+  } catch (error) {
+    console.error('Error fetching public quiz:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // @route   GET /api/quiz/:id
 // @desc    Get quiz by ID
 // @access  Private

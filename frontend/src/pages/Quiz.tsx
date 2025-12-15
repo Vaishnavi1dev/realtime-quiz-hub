@@ -54,80 +54,55 @@ const Quiz = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('🔍 Quiz component loading...');
-    console.log('📍 QuizId from URL:', quizId);
-    console.log('📍 Location state:', location.state);
+    console.log('🔍 Quiz component loading (real website mode)...');
     
-    // Check if this is a demo quiz from AI generation
-    if (location.state?.quiz && location.state?.isDemo) {
-      const demoQuiz = location.state.quiz;
-      setQuiz(demoQuiz);
-      setSelectedAnswers(new Array(demoQuiz.questions.length).fill(null));
-      setQuizSettings({
-        quizId: demoQuiz._id,
-        timeLimit: demoQuiz.timeLimit || 300,
-        isDemo: true
-      });
-      setLoading(false);
-      return;
-    }
-
-    // Check for generated quiz in localStorage
-    const generatedQuiz = localStorage.getItem("generatedQuiz");
-    console.log('💾 Generated quiz in localStorage:', !!generatedQuiz);
-    console.log('🆔 QuizId starts with demo:', quizId?.startsWith('demo-'));
-    
-    if (generatedQuiz && quizId?.startsWith('demo-')) {
-      const quiz = JSON.parse(generatedQuiz);
-      setQuiz(quiz);
-      setSelectedAnswers(new Array(quiz.questions.length).fill(null));
-      setQuizSettings({
-        quizId: quiz._id,
-        timeLimit: quiz.timeLimit || 300,
-        isDemo: true
-      });
-      setLoading(false);
-      return;
-    }
-
     const settings = localStorage.getItem("quizSettings");
-    if (!settings && !quizId) {
+    if (!settings) {
+      console.log('❌ No quiz settings found - redirecting to dashboard');
       navigate("/dashboard");
       return;
     }
     
-    if (settings) {
-      const parsedSettings = JSON.parse(settings);
-      setQuizSettings(parsedSettings);
-      
-      if (parsedSettings.quizId) {
-        loadQuizFromDatabase(parsedSettings.quizId, parsedSettings.timeLimit);
-      } else {
-        // Fallback to sample questions
-        setQuiz({ questions: sampleQuestions, timeLimit: 300 });
-        setSelectedAnswers(new Array(sampleQuestions.length).fill(null));
-        setLoading(false);
-      }
+    const parsedSettings = JSON.parse(settings);
+    console.log('📋 Quiz settings:', parsedSettings);
+    setQuizSettings(parsedSettings);
+    
+    if (parsedSettings.quizId) {
+      console.log('🔄 Loading quiz from database:', parsedSettings.quizId);
+      loadQuizFromDatabase(parsedSettings.quizId, parsedSettings.timeLimit);
     } else {
-      // No settings but has quizId - this shouldn't happen, redirect to dashboard
-      console.warn('No quiz settings found for quizId:', quizId);
-      navigate("/dashboard");
+      console.log('⚠️ No quiz ID found - using sample questions');
+      // Fallback to sample questions only if no quiz ID
+      setQuiz({ questions: sampleQuestions, timeLimit: 300 });
+      setSelectedAnswers(new Array(sampleQuestions.length).fill(null));
+      setLoading(false);
     }
-  }, [navigate, location.state, quizId]);
+  }, [navigate]);
 
   const loadQuizFromDatabase = async (quizId: string, timeLimit: number) => {
     try {
       const authToken = localStorage.getItem('authToken');
-      if (!authToken) {
-        navigate("/login");
-        return;
+      
+      // For AI-generated public quizzes, try without auth first
+      const headers: any = {
+        'Content-Type': 'application/json'
+      };
+      
+      if (authToken) {
+        headers['x-auth-token'] = authToken;
       }
 
-      const response = await fetch(`${API_URL}/quiz/${quizId}`, {
-        headers: {
-          'x-auth-token': authToken,
-        },
-      });
+      // Try public endpoint first for AI-generated quizzes, then authenticated
+      let response = await fetch(`${API_URL}/quiz/${quizId}/public`);
+      
+      if (!response.ok && authToken) {
+        // If public fails and we have auth, try authenticated endpoint
+        response = await fetch(`${API_URL}/quiz/${quizId}`, {
+          headers: {
+            'x-auth-token': authToken,
+          },
+        });
+      }
 
       if (response.ok) {
         const quizData = await response.json();
