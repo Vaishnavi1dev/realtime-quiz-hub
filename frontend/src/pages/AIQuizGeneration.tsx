@@ -32,7 +32,7 @@ const AIQuizGeneration = () => {
 
     try {
       const authToken = localStorage.getItem('authToken');
-      const response = await fetch(`${API_URL}/gemini/generate-quiz`, {
+      const response = await fetch(`${API_URL}/gemini/generate-quiz-demo`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -33,7 +33,79 @@ router.get('/test-models', auth, async (req, res) => {
   }
 });
 
-// Generate quiz using Gemini AI
+// Generate quiz using Gemini AI (demo version - no auth required)
+router.post('/generate-quiz-demo', async (req, res) => {
+  try {
+    const { topic, difficulty, questionCount } = req.body;
+
+    if (!topic || !difficulty || !questionCount) {
+      return res.status(400).json({ message: 'Topic, difficulty, and question count are required' });
+    }
+
+    // Check if Gemini service is enabled
+    if (!geminiService.isEnabled) {
+      return res.status(503).json({ 
+        message: 'AI service is not available', 
+        error: 'GEMINI_API_KEY is not configured' 
+      });
+    }
+
+    console.log(`🤖 Generating demo quiz: ${topic} (${difficulty}, ${questionCount} questions)`);
+
+    // Generate quiz using Gemini
+    const generatedQuiz = await geminiService.generateQuiz(topic, difficulty, questionCount);
+
+    if (!generatedQuiz || !generatedQuiz.questions) {
+      throw new Error('Invalid quiz data generated');
+    }
+
+    console.log(`✅ Demo quiz generated successfully: ${generatedQuiz.title}`);
+
+    // Return quiz without saving to database (demo mode)
+    res.json({
+      message: 'Quiz generated successfully (demo mode)',
+      quiz: {
+        _id: 'demo-' + Date.now(),
+        title: generatedQuiz.title,
+        difficulty: difficulty.toLowerCase(),
+        timeLimit: questionCount * 60,
+        questions: generatedQuiz.questions,
+        isAIGenerated: true,
+        topic: topic,
+        isDemo: true
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Generate demo quiz error:', error);
+    
+    // Provide specific error messages
+    let errorMessage = 'Failed to generate quiz';
+    let statusCode = 500;
+
+    if (error.message.includes('Authentication failed')) {
+      errorMessage = 'Database authentication failed';
+      statusCode = 503;
+    } else if (error.message.includes('ECONNREFUSED')) {
+      errorMessage = 'Database connection refused';
+      statusCode = 503;
+    } else if (error.message.includes('Gemini')) {
+      errorMessage = 'AI service error';
+      statusCode = 503;
+    } else if (error.message.includes('timeout')) {
+      errorMessage = 'Request timeout - please try again';
+      statusCode = 408;
+    }
+
+    res.status(statusCode).json({ 
+      message: errorMessage, 
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
+// Generate quiz using Gemini AI (authenticated version)
 router.post('/generate-quiz', auth, async (req, res) => {
   try {
     const { topic, difficulty, questionCount } = req.body;
