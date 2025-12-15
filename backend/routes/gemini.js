@@ -11,15 +11,52 @@ router.get('/test', async (req, res) => {
     if (!geminiService.isEnabled) {
       return res.status(503).json({ 
         status: 'disabled', 
-        message: 'Gemini API is not configured' 
+        message: 'Gemini API is not configured',
+        debug: {
+          hasApiKey: !!process.env.GEMINI_API_KEY,
+          apiKeyLength: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0
+        }
       });
     }
     res.json({ 
       status: 'enabled', 
-      message: 'Gemini API is working!' 
+      message: 'Gemini API is working!',
+      debug: {
+        hasApiKey: !!process.env.GEMINI_API_KEY,
+        apiKeyLength: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0
+      }
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Simple test generation (no auth required)
+router.post('/test-generate', async (req, res) => {
+  try {
+    console.log('🧪 Testing Gemini generation...');
+    
+    if (!geminiService.isEnabled) {
+      return res.status(503).json({ 
+        message: 'Gemini service not enabled',
+        hasApiKey: !!process.env.GEMINI_API_KEY
+      });
+    }
+
+    const testQuiz = await geminiService.generateQuiz('JavaScript', 'easy', 2);
+    
+    res.json({
+      success: true,
+      message: 'Test generation successful',
+      quiz: testQuiz
+    });
+  } catch (error) {
+    console.error('❌ Test generation failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 
@@ -44,13 +81,19 @@ router.post('/generate-quiz-demo', async (req, res) => {
 
     // Check if Gemini service is enabled
     if (!geminiService.isEnabled) {
+      console.error('❌ Gemini service is not enabled');
       return res.status(503).json({ 
         message: 'AI service is not available', 
-        error: 'GEMINI_API_KEY is not configured' 
+        error: 'GEMINI_API_KEY is not configured',
+        debug: {
+          hasApiKey: !!process.env.GEMINI_API_KEY,
+          apiKeyLength: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0
+        }
       });
     }
 
     console.log(`🤖 Generating demo quiz: ${topic} (${difficulty}, ${questionCount} questions)`);
+    console.log('🔑 Gemini API Key available:', !!process.env.GEMINI_API_KEY);
 
     // Generate quiz using Gemini
     const generatedQuiz = await geminiService.generateQuiz(topic, difficulty, questionCount);
