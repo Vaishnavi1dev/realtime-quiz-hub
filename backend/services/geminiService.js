@@ -9,25 +9,17 @@ class GeminiService {
       return;
     }
     console.log('Gemini API Key loaded:', apiKey.substring(0, 10) + '...');
-    this.genAI = new GoogleGenerativeAI(apiKey);
     
-    // Try different model names for better compatibility
     try {
-      this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      console.log('✅ Using Gemini 1.5 Flash model');
+      this.genAI = new GoogleGenerativeAI(apiKey);
+      // Use the most stable model
+      this.model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
+      console.log('✅ Gemini service initialized with gemini-pro model');
+      this.isEnabled = true;
     } catch (error) {
-      console.warn('⚠️ Gemini 1.5 Flash not available, trying Pro model');
-      try {
-        this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-        console.log('✅ Using Gemini 1.5 Pro model');
-      } catch (error2) {
-        console.warn('⚠️ Gemini 1.5 Pro not available, trying legacy model');
-        this.model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
-        console.log('✅ Using Gemini Pro model');
-      }
+      console.error('❌ Failed to initialize Gemini service:', error);
+      this.isEnabled = false;
     }
-    
-    this.isEnabled = true;
   }
 
   async listAvailableModels() {
@@ -107,22 +99,8 @@ Make sure the JSON is valid and properly formatted.
       console.error('❌ Error status:', error.status);
       console.error('❌ Full error:', error);
       
-      // Fallback for production debugging
-      console.log('⚠️ Using fallback data due to API error');
-      return {
-        title: `${topic} Quiz - ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`,
-        questions: Array.from({ length: questionCount }, (_, i) => ({
-          question: `Sample question ${i + 1} about ${topic}?`,
-          options: [
-            `Correct answer for ${topic}`,
-            `Incorrect option A`,
-            `Incorrect option B`,
-            `Incorrect option C`
-          ],
-          correctAnswer: 0,
-          explanation: `This is the correct answer because it relates directly to ${topic}.`
-        }))
-      };
+      // Re-throw the error to see what's actually failing
+      throw new Error(`Gemini API failed: ${error.message}`);
     }
   }
 
