@@ -54,6 +54,10 @@ const Quiz = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🔍 Quiz component loading...');
+    console.log('📍 QuizId from URL:', quizId);
+    console.log('📍 Location state:', location.state);
+    
     // Check if this is a demo quiz from AI generation
     if (location.state?.quiz && location.state?.isDemo) {
       const demoQuiz = location.state.quiz;
@@ -70,6 +74,9 @@ const Quiz = () => {
 
     // Check for generated quiz in localStorage
     const generatedQuiz = localStorage.getItem("generatedQuiz");
+    console.log('💾 Generated quiz in localStorage:', !!generatedQuiz);
+    console.log('🆔 QuizId starts with demo:', quizId?.startsWith('demo-'));
+    
     if (generatedQuiz && quizId?.startsWith('demo-')) {
       const quiz = JSON.parse(generatedQuiz);
       setQuiz(quiz);
@@ -84,21 +91,27 @@ const Quiz = () => {
     }
 
     const settings = localStorage.getItem("quizSettings");
-    if (!settings) {
+    if (!settings && !quizId) {
       navigate("/dashboard");
       return;
     }
     
-    const parsedSettings = JSON.parse(settings);
-    setQuizSettings(parsedSettings);
-    
-    if (parsedSettings.quizId) {
-      loadQuizFromDatabase(parsedSettings.quizId, parsedSettings.timeLimit);
+    if (settings) {
+      const parsedSettings = JSON.parse(settings);
+      setQuizSettings(parsedSettings);
+      
+      if (parsedSettings.quizId) {
+        loadQuizFromDatabase(parsedSettings.quizId, parsedSettings.timeLimit);
+      } else {
+        // Fallback to sample questions
+        setQuiz({ questions: sampleQuestions, timeLimit: 300 });
+        setSelectedAnswers(new Array(sampleQuestions.length).fill(null));
+        setLoading(false);
+      }
     } else {
-      // Fallback to sample questions
-      setQuiz({ questions: sampleQuestions, timeLimit: 300 });
-      setSelectedAnswers(new Array(sampleQuestions.length).fill(null));
-      setLoading(false);
+      // No settings but has quizId - this shouldn't happen, redirect to dashboard
+      console.warn('No quiz settings found for quizId:', quizId);
+      navigate("/dashboard");
     }
   }, [navigate, location.state, quizId]);
 
