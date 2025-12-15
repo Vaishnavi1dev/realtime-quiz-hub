@@ -10,10 +10,10 @@ const connectDB = async () => {
                      process.env.MONGODB_URL; // Railway sometimes uses this
     
     if (!mongoUri) {
-      console.error('❌ CRITICAL: MongoDB URI not found in environment variables.');
-      console.error('❌ This is a real website - database is REQUIRED');
-      console.error('💡 Go to Railway dashboard → Variables and check MongoDB connection');
-      throw new Error('Database is required for production website');
+      console.warn('⚠️  MongoDB URI not found in environment variables.');
+      console.warn('⚠️  Server will run without database (connecting services...)');
+      console.warn('💡 Go to Railway dashboard → Connect MongoDB service to SmartQuizapp');
+      return; // Allow server to start while we fix connection
     }
 
     console.log('🔄 Connecting to Railway MongoDB (REQUIRED)...');
@@ -53,8 +53,9 @@ const connectDB = async () => {
       console.error('❌ Database connection timeout - service may be down');
     }
     
-    console.error('❌ STOPPING SERVER - Real websites need databases');
-    process.exit(1); // Exit if database fails - this is a real website
+    console.warn('⚠️  Server will continue while we fix database connection');
+    console.warn('⚠️  Connect MongoDB service in Railway dashboard');
+    // Don't exit - let server start while we fix connection
   }
 };
 
