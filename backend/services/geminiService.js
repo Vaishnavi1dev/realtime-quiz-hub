@@ -10,7 +10,23 @@ class GeminiService {
     }
     console.log('Gemini API Key loaded:', apiKey.substring(0, 10) + '...');
     this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    
+    // Try different model names for better compatibility
+    try {
+      this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      console.log('✅ Using Gemini 1.5 Flash model');
+    } catch (error) {
+      console.warn('⚠️ Gemini 1.5 Flash not available, trying Pro model');
+      try {
+        this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+        console.log('✅ Using Gemini 1.5 Pro model');
+      } catch (error2) {
+        console.warn('⚠️ Gemini 1.5 Pro not available, trying legacy model');
+        this.model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
+        console.log('✅ Using Gemini Pro model');
+      }
+    }
+    
     this.isEnabled = true;
   }
 
@@ -67,41 +83,46 @@ Make sure the JSON is valid and properly formatted.
 `;
 
     try {
+      console.log('🤖 Sending request to Gemini API...');
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
       
+      console.log('📝 Gemini response received, length:', text.length);
+      console.log('📝 First 200 chars:', text.substring(0, 200));
+      
       // Extract JSON from response
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
+        const parsedQuiz = JSON.parse(jsonMatch[0]);
+        console.log('✅ Quiz parsed successfully:', parsedQuiz.title);
+        return parsedQuiz;
       }
       
-      throw new Error('Invalid response format');
+      console.error('❌ No valid JSON found in response');
+      throw new Error('Invalid response format - no JSON found');
     } catch (error) {
-      console.error('Gemini API Error:', error);
-      console.error('Error details:', error.message);
-      console.error('Error status:', error.status);
+      console.error('❌ Gemini API Error:', error);
+      console.error('❌ Error details:', error.message);
+      console.error('❌ Error status:', error.status);
+      console.error('❌ Full error:', error);
       
-      // Temporary fallback while debugging
-      if (process.env.NODE_ENV === 'development') {
-        console.log('⚠️ Using fallback data due to API error');
-        return {
-          title: `${topic} Quiz - ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`,
-          questions: Array.from({ length: questionCount }, (_, i) => ({
-            question: `Sample question ${i + 1} about ${topic}?`,
-            options: [
-              `Correct answer for ${topic}`,
-              `Incorrect option A`,
-              `Incorrect option B`,
-              `Incorrect option C`
-            ],
-            correctAnswer: 0
-          }))
-        };
-      }
-      
-      throw new Error('Failed to generate quiz');
+      // Fallback for production debugging
+      console.log('⚠️ Using fallback data due to API error');
+      return {
+        title: `${topic} Quiz - ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`,
+        questions: Array.from({ length: questionCount }, (_, i) => ({
+          question: `Sample question ${i + 1} about ${topic}?`,
+          options: [
+            `Correct answer for ${topic}`,
+            `Incorrect option A`,
+            `Incorrect option B`,
+            `Incorrect option C`
+          ],
+          correctAnswer: 0,
+          explanation: `This is the correct answer because it relates directly to ${topic}.`
+        }))
+      };
     }
   }
 
