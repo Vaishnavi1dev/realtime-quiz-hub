@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, ArrowLeft, Save } from "lucide-react";
 import { toast } from "sonner";
+import { API_URL } from "@/config/api";
 
 interface Question {
   id: string;
@@ -89,7 +90,7 @@ const TeacherQuizCreation = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/quiz', {
+      const response = await fetch(`${API_URL}/quiz`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

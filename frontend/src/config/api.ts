@@ -1,6 +1,10 @@
-// API Configuration
-export const API_URL = import.meta.env.VITE_API_URL || 'https://smartquizapp-production-cffd.up.railway.app/api';
-export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://smartquizapp-production-cffd.up.railway.app';
+// API Configuration - Force production URLs
+export const API_URL = 'https://smartquizapp-production-cffd.up.railway.app/api';
+export const SOCKET_URL = 'https://smartquizapp-production-cffd.up.railway.app';
+
+// Debug: Log the API URL being used
+console.log('🔗 API URL:', API_URL);
+console.log('🔗 Socket URL:', SOCKET_URL);
 
 // API Helper Functions
 export const apiRequest = async (endpoint: string, options: RequestInit = {}) => {

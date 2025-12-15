@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Sparkles, Brain, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { API_URL } from "@/config/api";
 
 const AIQuizGeneration = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const AIQuizGeneration = () => {
 
     try {
       const authToken = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:5000/api/gemini/generate-quiz', {
+      const response = await fetch(`${API_URL}/gemini/generate-quiz`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
