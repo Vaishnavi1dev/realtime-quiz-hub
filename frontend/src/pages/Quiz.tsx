@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Clock, ChevronLeft, ChevronRight, Flag } from "lucide-react";
 import { toast } from "sonner";
+import { API_URL } from "@/config/api";
 
 const sampleQuestions = [
   {
@@ -42,6 +43,8 @@ const sampleQuestions = [
 
 const Quiz = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { quizId } = useParams();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<(number | null)[]>([]);
   const [timeLeft, setTimeLeft] = useState(300);
@@ -51,6 +54,35 @@ const Quiz = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check if this is a demo quiz from AI generation
+    if (location.state?.quiz && location.state?.isDemo) {
+      const demoQuiz = location.state.quiz;
+      setQuiz(demoQuiz);
+      setSelectedAnswers(new Array(demoQuiz.questions.length).fill(null));
+      setQuizSettings({
+        quizId: demoQuiz._id,
+        timeLimit: demoQuiz.timeLimit || 300,
+        isDemo: true
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Check for generated quiz in localStorage
+    const generatedQuiz = localStorage.getItem("generatedQuiz");
+    if (generatedQuiz && quizId?.startsWith('demo-')) {
+      const quiz = JSON.parse(generatedQuiz);
+      setQuiz(quiz);
+      setSelectedAnswers(new Array(quiz.questions.length).fill(null));
+      setQuizSettings({
+        quizId: quiz._id,
+        timeLimit: quiz.timeLimit || 300,
+        isDemo: true
+      });
+      setLoading(false);
+      return;
+    }
+
     const settings = localStorage.getItem("quizSettings");
     if (!settings) {
       navigate("/dashboard");
@@ -68,7 +100,7 @@ const Quiz = () => {
       setSelectedAnswers(new Array(sampleQuestions.length).fill(null));
       setLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, location.state, quizId]);
 
   const loadQuizFromDatabase = async (quizId: string, timeLimit: number) => {
     try {
@@ -78,7 +110,7 @@ const Quiz = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/api/quiz/${quizId}`, {
+      const response = await fetch(`${API_URL}/quiz/${quizId}`, {
         headers: {
           'x-auth-token': authToken,
         },
@@ -177,7 +209,7 @@ const Quiz = () => {
             timeSpent: timeTaken ? Math.floor(timeTaken / questions.length) : 0
           }));
           
-          const response = await fetch(`http://localhost:5000/api/quiz/${quizSettings.quizId}/submit`, {
+          const response = await fetch(`${API_URL}/quiz/${quizSettings.quizId}/submit`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
