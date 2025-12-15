@@ -16,7 +16,11 @@ const server = http.createServer(app);
 // Initialize Socket.IO
 const io = socketIo(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: [
+      'http://localhost:5173',
+      'https://realtime-quiz-hub.vercel.app',
+      'https://realtime-quiz-hub-git-main-vs-projects-c2d58257.vercel.app'
+    ],
     methods: ['GET', 'POST']
   }
 });
@@ -37,13 +41,33 @@ const initializeDatabases = async () => {
   }
 };
 
-// Initialize databases
+// Initialize databases - Don't crash server if DB fails
 initializeDatabases().catch(error => {
   console.error('💥 Failed to initialize databases:', error);
+  console.log('⚠️  Server will continue running without full database functionality');
 });
 
-// Middleware
-app.use(cors());
+// Middleware - Enhanced CORS configuration
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://realtime-quiz-hub.vercel.app',
+    'https://realtime-quiz-hub-git-main-vs-projects-c2d58257.vercel.app'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'x-auth-token', 'Authorization'],
+  credentials: true
+}));
+
+// Handle preflight requests explicitly
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, x-auth-token, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -10,24 +10,21 @@ const connectDB = async () => {
                      process.env.MONGODB_URL; // Railway sometimes uses this
     
     if (!mongoUri) {
-      console.error('❌ MongoDB URI not found in environment variables.');
-      console.error('❌ To fix this:');
-      console.error('   1. Go to Railway dashboard');
-      console.error('   2. Click "New" → "Database" → "Add MongoDB"');
-      console.error('   3. Railway will auto-set MONGODB_URI variable');
-      console.error('   4. Redeploy your service');
-      throw new Error('Database configuration missing - add MongoDB service in Railway');
+      console.warn('⚠️  MongoDB URI not found in environment variables.');
+      console.warn('⚠️  Server will run without database (some features disabled)');
+      console.warn('💡 To add MongoDB: Railway dashboard → New → Database → Add MongoDB');
+      return; // Don't crash, just continue without DB
     }
 
     console.log('🔄 Connecting to Railway MongoDB...');
     console.log('📍 URI:', mongoUri.replace(/\/\/.*@/, '//***:***@')); // Hide credentials in logs
 
     const conn = await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 15000, // 15 second timeout for Railway
-      socketTimeoutMS: 45000, // 45 second socket timeout
+      serverSelectionTimeoutMS: 10000, // 10 second timeout
+      socketTimeoutMS: 30000, // 30 second socket timeout
       bufferMaxEntries: 0, // Disable mongoose buffering
       bufferCommands: false, // Disable mongoose buffering
-      maxPoolSize: 10, // Maintain up to 10 socket connections
+      maxPoolSize: 5, // Reduce connection pool size
       minPoolSize: 1, // Maintain at least 1 socket connection
     });
 
@@ -52,8 +49,9 @@ const connectDB = async () => {
       console.error('💡 Railway MongoDB might be starting up, try again in a moment');
     }
     
-    console.error('❌ Server cannot start without database connection.');
-    process.exit(1); // Exit in production if DB fails
+    console.warn('⚠️  Server will continue without database connection');
+    console.warn('⚠️  Some features may not work properly');
+    // Don't exit - let server run without DB for now
   }
 };
 
